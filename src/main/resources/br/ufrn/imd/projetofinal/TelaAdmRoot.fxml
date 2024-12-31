@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+
+<AnchorPane prefHeight="243.0" prefWidth="478.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.ufrn.imd.projetofinal.control.TelaAdmRootController">
+    <children>
+        <Label alignment="CENTER" layoutX="114.0" layoutY="212.0" prefHeight="17.0" prefWidth="260.0" textAlignment="CENTER" fx:id="resultTest" text="Tela do adm Root"/>
+        <Button layoutX="428.0" layoutY="14.0" mnemonicParsing="false" text="Sair" onAction="#LogOut"/>
+    </children>
+</AnchorPane>
