@@ -33,4 +33,8 @@ public abstract class Usuario {
     public void setDataNascimento(Date dataNascimento){
         this.dataNascimento = dataNascimento;
     }
+
+    public Date getDataNascimento(){
+        return this.dataNascimento;
+    }
 }
