@@ -1,7 +1,7 @@
 package br.ufrn.imd.projetofinal.control;
 
 import br.ufrn.imd.projetofinal.dao.Repo;
-import br.ufrn.imd.projetofinal.model.Usuario;
+import br.ufrn.imd.projetofinal.model.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,7 +12,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * Controlador para a tela de login.
+ */
 public class TelaLoginController {
     @FXML private Label resultTest;
     @FXML private TextField usernameField;
@@ -20,58 +25,86 @@ public class TelaLoginController {
 
     private Repo rep;
 
-    public TelaLoginController(){
+    private static final Logger LOGGER = Logger.getLogger(TelaLoginController.class.getName());
+
+    /**
+     * Construtor da classe. Inicializa o repositório e preenche dados.
+     */
+    public TelaLoginController() {
         rep = new Repo();
         try {
             rep.preencher();
-        } catch (ParseException e){
-            System.out.println("Erro ao preencher");
+        } catch (ParseException e) {
+            LOGGER.log(Level.SEVERE, "Erro ao preencher dados do repositório", e);
         }
     }
 
-    @FXML protected void onEntrarButtonClick() {
-        String username = usernameField.getText();
-        String senha = passwordField.getText();
+    /**
+     * Método acionado ao clicar no botão "Entrar".
+     */
+    @FXML
+    protected void onEntrarButtonClick() {
+        String username = usernameField.getText().trim();
+        String senha = passwordField.getText().trim();
 
-        if (rep.autenticar(username, senha)){
+        if (rep.autenticar(username, senha)) {
             resultTest.setText("Login aprovado");
 
-            Usuario p = rep.get(username);
-            String arquivo = "";
+            Usuario usuario = rep.get(username);
+            String arquivoFXML = determinarArquivoFXML(usuario);
 
-            if (p.getClass().toString().contains("Professor")){
-                arquivo = "TelaProfessor";
-            } else if (p.getClass().toString().contains("Aluno")){
-                arquivo = "TelaAluno";
-            } else if(p.getClass().toString().contains("AdmEscola")){
-                arquivo = "TelaAdmEscola";
-            } else if(p.getClass().toString().contains("AdmSistema")){
-                arquivo = "TelaAdmSistema";
-            } else if(p.getClass().toString().contains("AdmRoot")) {
-                arquivo = "TelaAdmRoot";
+            if (arquivoFXML != null) {
+                abrirNovaTela(arquivoFXML);
+            } else {
+                resultTest.setText("Tipo de usuário não reconhecido.");
+                LOGGER.warning("Tipo de usuário desconhecido para: " + username);
             }
-
-            try{
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/br/ufrn/imd/projetofinal/" + arquivo + ".fxml"));
-                Parent root = fxmlLoader.load();
-                Scene scene = new Scene(root);
-                Stage stage = (Stage) usernameField.getScene().getWindow();
-                stage.setScene(scene);
-
-                // Mostrar a nova tela
-                stage.show();
-            } catch (Exception e){
-                e.printStackTrace();
-                resultTest.setText("Erro ao abrir a nova tela.");
-            }
-        } else{
+        } else {
             resultTest.setText("Login reprovado");
         }
     }
 
-    @FXML protected void onApagarButtonClick(){
+    /**
+     * Determina o arquivo FXML correspondente ao tipo de usuário.
+     *
+     * @param usuario o usuário autenticado.
+     * @return o nome do arquivo FXML, ou {@code null} se o tipo de usuário não for reconhecido.
+     */
+    private String determinarArquivoFXML(Usuario usuario) {
+        if (usuario instanceof Professor) {
+            return "TelaProfessor";
+        }
+        return null;
+    }
+
+    /**
+     * Abre uma nova tela com base no arquivo FXML fornecido.
+     *
+     * @param arquivoFXML o nome do arquivo FXML.
+     */
+    private void abrirNovaTela(String arquivoFXML) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/br/ufrn/imd/projetofinal/" + arquivoFXML + ".fxml"));
+            Parent root = fxmlLoader.load();
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setScene(scene);
+
+            // Mostrar a nova tela
+            stage.show();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Erro ao abrir a nova tela", e);
+            resultTest.setText("Erro ao carregar a nova tela.");
+        }
+    }
+
+    /**
+     * Método acionado ao clicar no botão "Apagar".
+     */
+    @FXML
+    protected void onApagarButtonClick() {
         resultTest.setText("Botão Apagar foi pressionado");
-        usernameField.setText("");
-        passwordField.setText("");
+        usernameField.clear();
+        passwordField.clear();
     }
 }
